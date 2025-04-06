@@ -215,10 +215,18 @@ header p {
 
 .pokemon-stats {
   display: flex;
+  flex-wrap: wrap; 
   width: 100%;
   justify-content: space-between;
   font-size: 0.8rem;
   color: var(--dark);
+  gap: 0.25rem; 
+}
+
+.pokemon-stats p {
+  margin: 0;
+  flex: 1 1 30%; 
+  min-width: 80px;
 }
 
 .stat {

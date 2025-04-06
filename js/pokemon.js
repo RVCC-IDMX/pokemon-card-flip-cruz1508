@@ -29,7 +29,20 @@ async function fetchRandomPokemon() {
   // 8. Return the processed Pokemon data
   // 9. In the catch block, log the error and return null
 
-  // YOUR CODE HERE
+  try {
+    const randomId = Math.floor(Math.random() * TOTAL_POKEMON) + 1;
+    const response = await fetch(`${API_BASE_URL}/pokemon/${randomId}`);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    const data = await response.json();
+    const processed = processPokemonData(data);
+    return processed;
+  } catch (error) {
+    console.error('Failed to fetch random Pokémon:', error);
+    return null;
+  }
+}
 
   // DEBUGGING TIP: Track the API request:
   // console.log(`Fetching Pokemon with ID: ${randomId}`);
@@ -38,7 +51,7 @@ async function fetchRandomPokemon() {
   // console.log('Raw API response ok:', response.ok);
   // You can also check the data before processing:
   // console.log('Raw Pokemon data:', data);
-}
+
 
 /**
  * Fetch multiple random Pokemon at once
@@ -61,7 +74,18 @@ async function fetchMultipleRandomPokemon(count) {
   // 5. Return the 'pokemonList'.
   // 6. In the catch block, log the error using console.error and return an empty array.
 
-  // YOUR CODE HERE
+  try {
+    const promises = [];
+    for (let i = 0; i < count; i++) {
+      promises.push(fetchRandomPokemon());
+    }
+    const pokemonList = await Promise.all(promises);
+    return pokemonList;
+  } catch (error) {
+    console.error('Failed to fetch multiple Pokémon:', error);
+    return [];
+  }
+}
 
   // DEBUGGING TIP:
   // - Before calling Promise.all,
@@ -70,7 +94,7 @@ async function fetchMultipleRandomPokemon(count) {
   // - After Promise.all resolves, log the length of
   // 'pokemonList' to ensure all Pokemon were fetched.
   // - In the catch block, log the error details to help with debugging.
-}
+
 
 /**
  * Process the raw Pokemon data into a more usable format
@@ -93,7 +117,23 @@ function processPokemonData(data) {
   //    - stats: an object with hp, attack, defense and speed (use findStat)
   //    - speciesUrl: the URL to the Pokemon's species data
 
-  // YOUR CODE HERE
+  return {
+    id: data.id,
+    name: capitalizeFirstLetter(data.name),
+    sprite: data.sprites.other['official-artwork'].front_default || data.sprites.front_default,
+    types: data.types.map(t => t.type.name),
+    height: data.height / 10,
+    weight: data.weight / 10,
+    abilities: data.abilities.map(a => capitalizeFirstLetter(a.ability.name)),
+    stats: {
+      hp: findStat(data.stats, 'hp'),
+      attack: findStat(data.stats, 'attack'),
+      defense: findStat(data.stats, 'defense'),
+      speed: findStat(data.stats, 'speed')
+    },
+    speciesUrl: data.species.url
+  };
+}
 
   // DEBUGGING TIP: Log the raw vs processed data:
   // console.log('Raw Pokemon data structure:', {
@@ -109,7 +149,7 @@ function processPokemonData(data) {
   // console.log('Processed Pokemon data:', processedData);
   // Check specific transformations:
   // console.log('Types transformation:', data.types, '->', types);
-}
+
 
 /**
  * Find a specific stat from the stats array
@@ -125,13 +165,15 @@ function findStat(stats, statName) {
   // 1. Use the find method to locate the stat object with stat.name === statName
   // 2. Return the base_stat value if found or 0 if not found
 
-  // YOUR CODE HERE
+  const stat = stats.find(s => s.stat.name === statName);
+  return stat?.base_stat || 0;
+}
 
   // DEBUGGING TIP: Trace the stat search:
   // console.log(`Looking for stat "${statName}" in:`, stats);
   // console.log(`Found stat:`, stat);
   // console.log(`Returning value:`, stat ? stat.base_stat : 0);
-}
+
 
 /**
  * Capitalize the first letter of a string
@@ -150,7 +192,9 @@ function capitalizeFirstLetter(string) {
   // 4. Get the rest of the string using slice(1)
   // 5. Combine and return the uppercase first letter with the rest of the string
 
-  // YOUR CODE HERE
+  const withSpaces = string.replace(/-/g, ' ');
+  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
+}
 
   // DEBUGGING TIP: Track string transformation:
   // console.log(`Input string: "${string}"`);
@@ -159,13 +203,16 @@ function capitalizeFirstLetter(string) {
   // const restOfString = string.replace('-', ' ').slice(1);
   // console.log(`Rest of string (with hyphens replaced): "${restOfString}"`);
   // console.log(`Final result: "${firstChar + restOfString}"`);
-}
+
 
 // CHALLENGE 6: Export the service functions
 // 1. Expose the Pokemon service functions through the window object
 // 2. Create a PokemonService object with fetchRandomPokemon and fetchMultipleRandomPokemon
 
-// YOUR CODE HERE
+window.PokemonService = {
+  fetchRandomPokemon,
+  fetchMultipleRandomPokemon
+};
 
 // DEBUGGING TIP: Verify the global export:
 // console.log('PokemonService exposed to window:', !!window.PokemonService);
