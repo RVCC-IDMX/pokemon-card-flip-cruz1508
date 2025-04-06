@@ -1,6 +1,16 @@
 # Pokémon Card Flip App
 
-A dynamic web application that displays a grid of Pokémon cards. When clicked, each card flips to reveal a random Pokémon with its name, type, and image.
+# How to Run Locally
+
+To run the project locally, clone the repository and open the folder in your code editor. Then run npx serve in the terminal to start a local server and preview the app in your browser. Make sure you have Node.js installed.
+
+# Challenges Faced
+
+Some sprites were way too big and broke the layout. I fixed this by adding a .pokemon-img class and styling it with max-width, object-fit, and auto height.
+
+When I first started, card flipping didn’t always work. I used event.target tracing and made sure the event listener was using delegation properly.
+
+
 
 ## Features
 
